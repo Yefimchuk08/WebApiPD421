@@ -1,0 +1,6 @@
+@WebApiPD421_HostAddress = http://localhost:5042
+
+GET {{WebApiPD421_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

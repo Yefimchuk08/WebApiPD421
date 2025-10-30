@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="WebApiPD421.BLL/WebApiPD421.BLL.csproj" />
+  <Project Path="WebApiPD421.DAL/WebApiPD421.DAL.csproj" />
+  <Project Path="WebApiPD421/WebApiPD421.csproj" />
+</Solution>
