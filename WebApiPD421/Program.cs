@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using WebApiPD421.DAL;
 using WebApiPD421.DAL.Entities.Idenity;
+using WebApiPD421.DAL.Repositories.Game;
+using WebApiPD421.DAL.Repositories.Genre;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +31,11 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
 })
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
+
+
+builder.Services.AddScoped<IGameRepository, GameRepository>();
+builder.Services.AddScoped<IGenreRepository, GenreRepository>();
+
 
 var app = builder.Build();
 

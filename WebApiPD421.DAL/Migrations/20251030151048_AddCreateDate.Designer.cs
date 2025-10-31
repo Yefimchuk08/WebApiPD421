@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WebApiPD421.DAL;
@@ -11,9 +12,11 @@ using WebApiPD421.DAL;
 namespace WebApiPD421.DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251030151048_AddCreateDate")]
+    partial class AddCreateDate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,10 +43,6 @@ namespace WebApiPD421.DAL.Migrations
             modelBuilder.Entity("WebApiPD421.DAL.Entities.GameEntity", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Category")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreateAt")

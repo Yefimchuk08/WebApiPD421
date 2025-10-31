@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace WebApiPD421.DAL.Entities
 {
-    public class GameImageEntity
+    public class GameImageEntity : BaseEntity<string>
     {
-        public string Id { get; set; } = Guid.NewGuid().ToString();
         public required string ImagePath { get; set; }
         public bool IsMain { get; set; } = false;
         public string GameId { get; set; }
