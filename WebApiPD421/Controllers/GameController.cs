@@ -1,9 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
+using System.Net;
+using WebApiPD421.BLL.Dtos.Game;
+using WebApiPD421.BLL.Dtos.Genre;
+using WebApiPD421.BLL.Services;
+using WebApiPD421.BLL.Services.Game;
 using WebApiPD421.DAL.Entities;
 using WebApiPD421.DAL.Repositories;
 using WebApiPD421.DAL.Repositories.Game;
+using WebApiPD421.Extentions;
 
 namespace WebApiPD421.Controllers
 {
@@ -24,101 +30,74 @@ namespace WebApiPD421.Controllers
     [Route("api/game")]
     public class GameController : Controller
     {
-        private readonly IGameRepository _gameRepository;
+        private readonly IGameService _gameService;
 
-        public GameController(IGameRepository gameRepository)
+        public GameController(IGameService gameService)
         {
-            _gameRepository = gameRepository;
+            _gameService = gameService;
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateAsync([FromBody] UpdateGameRequest request)
+        public async Task<IActionResult> CreateAsync([FromBody] CreateGameDto dto)
         {
-            var entity = new GameEntity
-            {
-                Name = request.Name,
-                Price = request.Price,
-                RealizeDate = request.RelizedDate,
-                Publisher = request.Publisher,
-                Developer = request.Developer,
-                Category = request.Category
-            };
-
-
-            await _gameRepository.CreateAsync(entity);
-            return Ok();
+            var response = await _gameService.CreateAsync(dto);
+            return this.ToActionResult(response);
         }
         [HttpPut]
-        public async Task<IActionResult> UpdateAsync([FromBody] UpdateGameRequest request)
+        public async Task<IActionResult> UpdateAsync([FromBody] UpdateGameDto dto)
         {
-            var entity = await _gameRepository.GetByIdAsync(request.Id);
-            if (entity == null)
-            {
-                return NotFound($"Жанр {request.Name} не знайдено");
-            }
-            entity.Name = request.Name;
-            entity.Price = request.Price;
-            entity.RealizeDate  = request.RelizedDate;
-            entity.Publisher = request.Publisher;
-            entity.Developer = request.Developer;
-            entity.Category = request.Category;
-
-            await _gameRepository.UpdateAsync(entity);
-
-            return Ok();
+            var response = await _gameService.UpdateAsync(dto);
+            return this.ToActionResult(response);
         }
 
         [HttpDelete]
         public async Task<IActionResult> DeleteAsync(string? id)
         {
-            if (id == null)
+            if (string.IsNullOrEmpty(id))
             {
-                return NotFound();
+                var validResponse = new ServiceResponse
+                {
+                    Message = "Id не вказано",
+                    IsSuccess = false,
+                    HttpStatusCode = HttpStatusCode.BadRequest
+                };
+                return this.ToActionResult(validResponse);
+
             }
 
-            var entity = await _gameRepository.GetByIdAsync(id);
-
-            if (entity == null)
-            {
-                return NotFound();
-            }
-            await _gameRepository.DeleteAsync(entity);
-
-            return Ok();
+            var response = await _gameService.DeleteAsync(id);
+            return this.ToActionResult(response);
 
         }
 
         [HttpGet]
         public async Task<IActionResult> GetByIdAsync(string? id)
         {
-            if (id == null)
+            if (string.IsNullOrEmpty(id))
             {
-                return NotFound();
+                return BadRequest("Id не вказано");
             }
-            var entity = await _gameRepository.GetByIdAsync(id);
 
-            if (entity == null)
-            {
-                return NotFound();
-            }
-            return Ok(entity);
+            var response = await _gameService.GetByIdAsync(id);
+            return this.ToActionResult(response);
         }
 
         [HttpGet("list")]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAllAsync()
         {
-            var entities = await _gameRepository.GetAll().ToListAsync();
-            return Ok(entities);
+            var response = await _gameService.GetAllAsync();
+            return this.ToActionResult(response);
         }
         [HttpGet("category")]
         public async Task<IActionResult> GetByCategory(string categoryName)
         {
-            var games = await _gameRepository.GetByCategoryAsync(categoryName);
+            if (string.IsNullOrEmpty(categoryName))
+            {
+                return BadRequest("Category не вказано");
+            }
 
-            if (!games.Any())
-                return NotFound($"Ігор у категорії '{categoryName}' не знайдено.");
-
-            return Ok(games);
+            var response = await _gameService.GetByGenreAsync(categoryName);
+            return this.ToActionResult(response);
         }
     }
 }

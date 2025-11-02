@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
+using System.Net;
 using WebApiPD421.BLL.Dtos.Genre;
+using WebApiPD421.BLL.Services;
 using WebApiPD421.BLL.Services.Genre;
 using WebApiPD421.DAL.Entities;
 using WebApiPD421.DAL.Repositories.Genre;
+using WebApiPD421.Extentions;
 
 namespace WebApiPD421.Controllers
 {
@@ -29,14 +32,14 @@ namespace WebApiPD421.Controllers
         public async Task<IActionResult> CreateAsync([FromBody] CreateGenreDto dto)
         {
             var response = await _genreService.CreateAsync(dto);
-            return Ok(response);
+            return this.ToActionResult(response);
         }
 
         [HttpPut]
         public async Task<IActionResult> UpdateAsync([FromBody] UpdateGenreDto dto)
         {
             var response = await _genreService.UpdateAsync(dto);
-            return Ok(response);
+            return this.ToActionResult(response);
         }
 
         [HttpDelete]
@@ -44,11 +47,18 @@ namespace WebApiPD421.Controllers
         {
             if (string.IsNullOrEmpty(id))
             {
-                return BadRequest("Id не вказано");
+                var validResponse = new ServiceResponse
+                {
+                    Message = "Id не вказано",
+                    IsSuccess = false,
+                    HttpStatusCode = HttpStatusCode.BadRequest
+                };
+                return this.ToActionResult(validResponse);
+
             }
 
             var response = await _genreService.DeleteAsync(id);
-            return Ok(response);
+            return this.ToActionResult(response);
         }
 
         [HttpGet]
@@ -60,14 +70,14 @@ namespace WebApiPD421.Controllers
             }
 
             var response = await _genreService.GetByIdAsync(id);
-            return Ok(response);
+            return this.ToActionResult(response);
         }
 
         [HttpGet("list")]
         public async Task<IActionResult> GetAllAsync()
         {
             var response = await _genreService.GetAllAsync();
-            return Ok(response);
+            return this.ToActionResult(response);
         }
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using WebApiPD421.BLL.Dtos.Genre;
@@ -19,11 +20,16 @@ namespace WebApiPD421.BLL.Services.Genre
             _genreRepository = genreRepository;
         }
 
-        public async Task<string> CreateAsync(CreateGenreDto dto)
+        public async Task<ServiceResponse> CreateAsync(CreateGenreDto dto)
         {
             if (await _genreRepository.IsExistsAsync(dto.Name))
             {
-                return $"Жанр під назвою '{dto.Name}' вже існує";
+                return new ServiceResponse
+                {
+                    Message = $"Жанр {dto.Name} уже шснує",
+                    IsSuccess = false,
+                    HttpStatusCode = HttpStatusCode.BadRequest
+                };  
             }
             var entity = new GenreEntity
             {
@@ -33,24 +39,38 @@ namespace WebApiPD421.BLL.Services.Genre
 
             await _genreRepository.CreateAsync(entity);
 
-            return $"Жанр '{dto.Name}' створено";
+            return new ServiceResponse
+            {
+                Message = $"Жанр {dto.Name} успішно створено",
+                HttpStatusCode = HttpStatusCode.Created
+            };
         }
 
-        public async Task<string> DeleteAsync(string id)
+        public async Task<ServiceResponse> DeleteAsync(string id)
         {
             var entity = await _genreRepository.GetByIdAsync(id);
 
             if (entity == null)
             {
-                return $"Жанр з id '{id}' не знайдено";
+                return new ServiceResponse
+                {
+                    Message = $"Жанр з id '{id}' не знайдено",
+                    IsSuccess = false,
+                    HttpStatusCode = HttpStatusCode.NotFound
+                   
+                };
             }
 
             await _genreRepository.DeleteAsync(entity);
 
-            return $"Жанр '{entity.Name}' видалено";
+            return new ServiceResponse
+            {
+                Message = $"Жанр '{entity.Name}' видалено",
+                
+            } ;
         }
 
-        public async Task<IEnumerable<GenreDto>> GetAllAsync()
+        public async Task<ServiceResponse> GetAllAsync()
         {
             var entities = await _genreRepository.GetAll().ToListAsync();
 
@@ -60,16 +80,25 @@ namespace WebApiPD421.BLL.Services.Genre
                 Name = e.Name
             });
 
-            return dtos;
+            return new ServiceResponse
+            {
+                Message = "Категорії отримано",
+                Data = dtos
+            };
         }
 
-        public async Task<GenreDto?> GetByIdAsync(string id)
+        public async Task<ServiceResponse> GetByIdAsync(string id)
         {
             var entity = await _genreRepository.GetByIdAsync(id);
 
             if (entity == null)
             {
-                return null;
+                return new ServiceResponse
+                {
+                    Message = $"Жанр з id '{entity.Id}' не знайдено",
+                    HttpStatusCode = HttpStatusCode.NotFound,
+                    IsSuccess = false
+                };
             }
 
             var dto = new GenreDto
@@ -78,21 +107,35 @@ namespace WebApiPD421.BLL.Services.Genre
                 Name = entity.Name
             };
 
-            return dto;
+            return new ServiceResponse
+            {
+                Message = $"Жанр з id '{entity.Id}' знайдено",
+                Data = dto
+            };
         }
 
-        public async Task<string> UpdateAsync(UpdateGenreDto dto)
+        public async Task<ServiceResponse> UpdateAsync(UpdateGenreDto dto)
         {
             if (await _genreRepository.IsExistsAsync(dto.Name))
             {
-                return $"Жанр під назвою '{dto.Name}' вже існує";
+                return new ServiceResponse
+                {
+                    Message = $"Жанр під назвою '{dto.Name}' вже існує",
+                    HttpStatusCode = HttpStatusCode.BadRequest,
+                    IsSuccess = false
+                };
             }
 
             var entity = await _genreRepository.GetByIdAsync(dto.Id);
 
             if (entity == null)
             {
-                return $"Жанр з id '{dto.Id}' не знайдено";
+                return  new ServiceResponse
+                {
+                    Message = $"Жанр з id '{dto.Id}' не знайдено",
+                    HttpStatusCode = HttpStatusCode.NotFound,
+                    IsSuccess = false
+                };
             }
 
             entity.Name = dto.Name;
@@ -100,7 +143,11 @@ namespace WebApiPD421.BLL.Services.Genre
 
             await _genreRepository.UpdateAsync(entity);
 
-            return $"Жанр '{dto.Name}' оновлено";
+            return new ServiceResponse 
+            { 
+                Message = $"Жанр '{dto.Name}' оновлено",
+                HttpStatusCode = HttpStatusCode.OK 
+            };
         }
     }
 }

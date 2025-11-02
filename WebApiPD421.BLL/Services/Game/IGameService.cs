@@ -10,11 +10,11 @@ namespace WebApiPD421.BLL.Services.Game
 {
     public interface IGameService
     {
-        Task<string> CreateAsync(CreateGameDto dto);
-        Task<string> UpdateAsync(UpdateGameDto dto);
-        Task<string> DeleteAsync(string id);
-        Task<GameDto> GetByIdAsync(string id);
-        Task<IEnumerable<GameDto>> GetAllAsync();
-        public Task<IEnumerable<GameEntity>> GetByGenreAsync(string genre);
+        Task<ServiceResponse> CreateAsync(CreateGameDto dto);
+        Task<ServiceResponse> UpdateAsync(UpdateGameDto dto);
+        Task<ServiceResponse> DeleteAsync(string id);
+        Task<ServiceResponse> GetByIdAsync(string id);
+        Task<ServiceResponse> GetAllAsync();
+        public Task<ServiceResponse> GetByGenreAsync(string genre);
     }
 }

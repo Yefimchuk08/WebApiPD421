@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using WebApiPD421.BLL.Dtos.Game;
@@ -22,11 +23,16 @@ namespace WebApiPD421.BLL.Services.Game
             _gameRepository = gameRepository;
         }
 
-        public async Task<string> CreateAsync(CreateGameDto dto)
+        public async Task<ServiceResponse> CreateAsync(CreateGameDto dto)
         {
             if(await _gameRepository.IsExistsAsync(dto.Name))
             {
-                return $"Жанр під назвою '{dto.Name}' вже існує";
+                return new ServiceResponse
+                {
+                    Message = $"Жанр {dto.Name} уже шснує",
+                    IsSuccess = false,
+                    HttpStatusCode = HttpStatusCode.BadRequest
+                };
             }
             var entity = new GameEntity
             {
@@ -41,85 +47,145 @@ namespace WebApiPD421.BLL.Services.Game
 
             await _gameRepository.CreateAsync(entity);
 
-            return $"Game complete";
+            return new ServiceResponse
+            {
+                Message = $"Жанр {dto.Name} успішно створено",
+                HttpStatusCode = HttpStatusCode.Created
+            };
         }
 
-        public async Task<string> DeleteAsync(string id)
+        public async Task<ServiceResponse> DeleteAsync(string id)
         {
             var entity = await _gameRepository.GetByIdAsync(id);
 
-            if(entity == null)
+            if (entity == null)
             {
-                return "Not Found";
+                return new ServiceResponse
+                {
+                    Message = $"Жанр з id '{id}' не знайдено",
+                    IsSuccess = false,
+                    HttpStatusCode = HttpStatusCode.NotFound
+
+                };
             }
             await _gameRepository.DeleteAsync(entity);
 
-            return $"Game com[leteluy delete";
+            return new ServiceResponse
+            {
+                Message = $"Жанр '{entity.Name}' видалено",
+
+            };
         }
 
-        public async Task<IEnumerable<GameDto>> GetAllAsync()
+        public async Task<ServiceResponse> GetAllAsync()
         {
             var entities = await _gameRepository.GetAll().ToListAsync();
 
             var dtos = entities.Select(e => new GameDto
             {
-                Id = e.Id,
-                Name = e.Name
+                Name = e.Name,
+                Price = e.Price,
+                RealizeDate = e.RealizeDate,
+                Publisher = e.Publisher,
+                Developer = e.Developer,
+                Category = e.Category
             });
 
-            return dtos;
+            return new ServiceResponse
+            {
+                Message = "Категорії отримано",
+                Data = dtos
+            };
         }
-        public async Task<IEnumerable<GameEntity>> GetByGenreAsync(string genre)
+        public async Task<ServiceResponse> GetByGenreAsync(string genre)
         {
             var games = (await _gameRepository.GetByGenreAsync(genre)).ToList();
 
             var entities = games.Select(e => new GameEntity
             {
-                Id = e.Id,
-                Name = e.Name
+                Name = e.Name,
+                Price = e.Price,
+                RealizeDate = e.RealizeDate,
+                Publisher = e.Publisher,
+                Developer = e.Developer,
+                Category = e.Category
             });
-            
-            return entities;
 
+            return new ServiceResponse
+            {
+                Message = "Жанри отримано",
+                Data = entities
+            };
         }
-        public async Task<GameDto> GetByIdAsync(string id)
+        public async Task<ServiceResponse> GetByIdAsync(string id)
         {
             var entity = await _gameRepository.GetByIdAsync(id);
 
             if(entity == null)
             {
-                return null;
+                return new ServiceResponse
+                {
+                    Message = $"Жанр з id '{entity.Id}' не знайдено",
+                    HttpStatusCode = HttpStatusCode.NotFound,
+                    IsSuccess = false
+                };
             }
 
             var dto = new GameDto
             {
-                Id = entity.Id,
-                Name = entity.Name
+                Name = entity.Name,
+                Price = entity.Price,
+                RealizeDate = entity.RealizeDate,
+                Publisher = entity.Publisher,
+                Developer = entity.Developer,
+                Category = entity.Category
             };
 
-            return dto;
-
+            return new ServiceResponse
+            {
+                Message = $"Жанр з id '{entity.Id}' знайдено",
+                Data = dto
+            };
         }
 
-        public async Task<string> UpdateAsync(UpdateGameDto dto)
+        public async Task<ServiceResponse> UpdateAsync(UpdateGameDto dto)
         {
             if(await _gameRepository.IsExistsAsync(dto.Name))
             {
-                return $"";
+                return new ServiceResponse
+                {
+                    Message = $"Жанр під назвою '{dto.Name}' вже існує",
+                    HttpStatusCode = HttpStatusCode.BadRequest,
+                    IsSuccess = false
+                };
             }
 
             var entity = await _gameRepository.GetByIdAsync(dto.Id);
 
             if( entity == null)
             {
-                return $"";
+                return new ServiceResponse
+                {
+                    Message = $"Жанр з id '{dto.Id}' не знайдено",
+                    HttpStatusCode = HttpStatusCode.NotFound,
+                    IsSuccess = false
+                };
             }
 
             entity.Name = dto.Name;
+            entity.Price = dto.Price;
+            entity.RealizeDate = dto.RealizeDate;
+            entity.Publisher = dto.Publisher;
+            entity.Developer = dto.Developer;
+            entity.Category = dto.Category;
 
             await _gameRepository.UpdateAsync(entity);
 
-            return $"";
+            return new ServiceResponse
+            {
+                Message = $"Жанр '{dto.Name}' оновлено",
+                HttpStatusCode = HttpStatusCode.OK
+            };
         }
     }
 }
