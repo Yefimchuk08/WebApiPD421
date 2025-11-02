@@ -9,5 +9,6 @@ namespace WebApiPD421.DAL.Repositories.Genre
 {
     public interface IGenreRepository : IGenericRepository<GenreEntity, string>
     {
+        Task<bool> IsExistsAsync(string name);
     }
 }

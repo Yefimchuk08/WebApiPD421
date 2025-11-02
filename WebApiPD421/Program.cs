@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using WebApiPD421.BLL.Services.Genre;
 using WebApiPD421.DAL;
 using WebApiPD421.DAL.Entities.Idenity;
 using WebApiPD421.DAL.Repositories.Game;
@@ -36,6 +37,7 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
 builder.Services.AddScoped<IGameRepository, GameRepository>();
 builder.Services.AddScoped<IGenreRepository, GenreRepository>();
 
+builder.Services.AddScoped<IGenreService, GenreService>();
 
 var app = builder.Build();
 
